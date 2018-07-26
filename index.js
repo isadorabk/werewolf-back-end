@@ -1,23 +1,32 @@
 const express = require('express');
+const app = express();
+const path = require('path');
+const http = require('http');
+const server = http.Server(app);
+const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
 const cors = require('cors');
+
 const router = require('./router.js');
 require('./db');
-const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app
+  .use(cors())
+  .use(bodyParser.urlencoded({ extended: false }))
+  .use(bodyParser.json())
+  .use(router);
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+io.on('connection', (socket) => {
+  // eslint-disable-next-line
+  console.log(`user ${socket.id} connected`);
+  socket.on('disconnect', () => {
+    // eslint-disable-next-line
+    console.log(`user ${socket.id} disconnected`);
+  });
+});
 
-// parse application/json
-app.use(bodyParser.json());
-
-// routes
-app.use(router);
-
-app.listen(port, () => {
+server.listen(port, () => {
   // eslint-disable-next-line
   console.log(`Server listening on port ${port}`);
 });
