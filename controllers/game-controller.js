@@ -5,6 +5,6 @@ exports.createGame = async (req, res) => {
     length: 4,
     charset: 'numeric'
   });
-  const adminId = randomstring.generate(12);
-  res.status(201).send({room, adminId});
+  const adminCode = randomstring.generate(12);
+  res.status(201).send({room, adminCode});
 };
