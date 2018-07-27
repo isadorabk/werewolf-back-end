@@ -1,14 +1,12 @@
 const express = require('express');
 const app = express();
-const path = require('path');
 const http = require('http');
 const server = http.Server(app);
-const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
 const router = require('./router.js');
 require('./db');
+require('./socket')(server);
 const port = process.env.PORT || 3000;
 
 app
@@ -20,14 +18,4 @@ app
 server.listen(port, () => {
   // eslint-disable-next-line
   console.log(`Server listening on port ${port}`);
-});
-
-
-io.on('connection', (socket) => {
-  // eslint-disable-next-line
-  console.log(`user ${socket.id} connected`);
-  socket.on('disconnect', () => {
-    // eslint-disable-next-line
-    console.log(`user ${socket.id} disconnected`);
-  });
 });
