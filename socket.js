@@ -7,4 +7,7 @@ module.exports = (server) => {
   io.of('/admin')
     .on('connection', gameController.onAdminConnection);
 
+  io.of('/game')
+    .on('connection', gameController.onPlayerConnection);
+
 };

@@ -1,4 +1,5 @@
 const randomstring = require('randomstring');
+const Player = require('../models/player');
 
 const games = {};
 
@@ -19,9 +20,18 @@ class Game {
 
   static setAdmin (gameId, adminCode, socket) {
     const game = Game.get(gameId);
-    if (!game.gameId) throw new Error('Game does not exist.');
+    if (!game) throw new Error('Game does not exist.');
     if (game.adminCode !== adminCode) throw new Error('Invalid admin code.');
     game.admin = socket;
+  }
+
+  static addPlayer (gameCode, userId, socket) {
+    const game = Game.get(gameCode);
+    if (!game) throw new Error('Game does not exist.');
+    const player = Player.get(userId);
+    player.socket = socket;
+    if (!game.players) game.players = {};
+    game.players[userId] = player;
   }
 
   constructor (gameId, adminCode) {

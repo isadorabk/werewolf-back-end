@@ -15,11 +15,20 @@ exports.createPlayer = async (req, res) => {
 
 exports.onAdminConnection = (socket) => {
   // eslint-disable-next-line
-  console.log(chalk.bgBlue('Admin connected'));
+  console.log(chalk.bgBlue('Admin connected', socket.id));
 
   socket.on('join', (gameId, adminCode) => {
     Game.setAdmin(gameId, adminCode, socket);
     // eslint-disable-next-line
     console.log(chalk.blue(Game.get(gameId).log()));
+  });
+};
+
+exports.onPlayerConnection = (socket) => {
+  // eslint-disable-next-line
+  console.log(chalk.bgBlue('Player connected', socket.id));
+
+  socket.on('join', (gameCode, userId) => {
+    Game.addPlayer(gameCode, userId, socket);
   });
 };

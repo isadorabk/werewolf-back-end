@@ -13,7 +13,6 @@ class Player {
     const role = 'villager';
     const lifeStatus = 'alive';
     players[playerId] = new Player(playerId, username, role, lifeStatus);
-    // Game.addPlayer(players[playerId]);
     return players[playerId];
   }
 
@@ -21,9 +20,8 @@ class Player {
     this.playerId = playerId;
     this.username = username;
     this.role = role;
-    this. lifeStatus = lifeStatus;
+    this.lifeStatus = lifeStatus;
   }
-
 
 }
 
