@@ -16,6 +16,12 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   .use(bodyParser.json())
   .use(router);
+  
+server.listen(port, () => {
+  // eslint-disable-next-line
+  console.log(`Server listening on port ${port}`);
+});
+
 
 io.on('connection', (socket) => {
   // eslint-disable-next-line
@@ -24,9 +30,4 @@ io.on('connection', (socket) => {
     // eslint-disable-next-line
     console.log(`user ${socket.id} disconnected`);
   });
-});
-
-server.listen(port, () => {
-  // eslint-disable-next-line
-  console.log(`Server listening on port ${port}`);
 });
