@@ -1,22 +1,24 @@
+const Game = require('../models/game');
 const randomstring = require('randomstring');
 const players = {};
 
 class Player {
-  static get (userId) {
-    return players[userId];
+  static get (playerId) {
+    return players[playerId];
   }
 
   static create (name) {
-    const userId = randomstring.generate(10);
+    const playerId = randomstring.generate(10);
     const username = name;
     const role = 'villager';
     const lifeStatus = 'alive';
-    players[userId] = new Player(userId, username, role, lifeStatus);
-    return players[userId];
+    players[playerId] = new Player(playerId, username, role, lifeStatus);
+    // Game.addPlayer(players[playerId]);
+    return players[playerId];
   }
 
-  constructor (userId, username, role, lifeStatus) {
-    this.userId = userId;
+  constructor (playerId, username, role, lifeStatus) {
+    this.playerId = playerId;
     this.username = username;
     this.role = role;
     this. lifeStatus = lifeStatus;
