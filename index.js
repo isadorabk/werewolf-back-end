@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const router = require('./router.js');
 require('./db');
+// require('./socket').createSocket(server);
 require('./socket')(server);
 const port = process.env.PORT || 3000;
 
