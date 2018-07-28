@@ -18,17 +18,8 @@ exports.createPlayer = async (req, res) => {
 
 exports.getPlayers = async (req, res) => {
   const gameId = req.params.id;
-  const game = Game.get(gameId);
-  const players = game.players;
-  let playersArr = [];
-  for (let key in players) {
-    if (players.hasOwnProperty(key)) {
-      let { socket, ...player } = players[key];
-      player.socketId = players[key].socket.id;
-      playersArr.push(player);
-    }
-  }
-  res.status(200).send(playersArr);
+  const players = Game.getPlayers(gameId);
+  res.status(200).send(players);
 };
 
 exports.onAdminConnection = (socket) => {
@@ -48,5 +39,6 @@ exports.onPlayerConnection = (socket) => {
 
   socket.on('join', (gameCode, userId) => {
     Game.addPlayer(gameCode, userId, socket);
+    // game.players.forEach(socket => socket.emit('newPlayer', username))
   });
 };

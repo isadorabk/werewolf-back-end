@@ -34,6 +34,22 @@ class Game {
     game.players[userId] = player;
   }
 
+  static getPlayers (gameId) {
+    const game = Game.get(gameId);
+    if (!game) throw new Error('Game does not exist.');
+    const players = game.players;
+    let playersArr = [];
+    for (let key in players) {
+      if (players.hasOwnProperty(key)) {
+        let { socket, ...player } = players[key];
+        player.socketId = players[key].socket.id;
+        playersArr.push(player);
+      }
+    }
+    const playersRole = Game.assignWerewolves(playersArr, gameId);
+    return playersRole;
+  }
+
   constructor (gameId, adminCode) {
     this.gameId = gameId;
     this.adminCode = adminCode;
@@ -46,6 +62,38 @@ class Game {
       adminCode,
       admin: this.admin ? this.admin.id : null
     });
+  }
+
+  static assignWerewolves (data, gameId) {
+    let playersRole = data.slice();
+    const numOfPlayers = playersRole.length;
+    const werewolvesRatio = 4;
+    const numOfWerewolves = Math.floor(numOfPlayers / werewolvesRatio);
+    const werewolves = Game.getRandomElements(playersRole, numOfWerewolves);
+    playersRole.forEach(player => {
+      werewolves.forEach(werewolf => {
+        if (werewolf.playerId === player.playerId) player.role = 'werewolf';
+      });
+    });
+    werewolves.forEach(element => {
+      const playerId = element.playerId;
+      const game = Game.get(gameId);
+      game.players[playerId].role = 'werewolf';
+    });
+    return playersRole;
+  }
+
+  static getRandomElements (arr, n) {
+    let result = new Array(n);
+    let len = arr.length;
+    let taken = new Array(len);
+    if (n > len) throw new RangeError('getRandomElements: more elements taken than avaiable');
+    while (n--) {
+      let x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
   }
 
 }
