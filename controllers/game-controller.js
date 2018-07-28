@@ -22,23 +22,20 @@ exports.getPlayers = async (req, res) => {
   res.status(200).send(players);
 };
 
-exports.onAdminConnection = (socket) => {
+exports.onConnection = (socket) => {
   // eslint-disable-next-line
-  console.log(chalk.bgBlue('Admin connected', socket.id));
+  console.log(chalk.bgBlue('User connected', socket.id));
 
-  socket.on('join', (gameId, adminCode) => {
+  socket.on('createGame', (gameId, adminCode) => {
     Game.setAdmin(gameId, adminCode, socket);
+    socket.join(gameId);
     // eslint-disable-next-line
     console.log(chalk.blue(Game.get(gameId).log()));
   });
-};
-
-exports.onPlayerConnection = (socket) => {
-  // eslint-disable-next-line
-  console.log(chalk.bgBlue('Player connected', socket.id));
 
   socket.on('join', (gameCode, userId) => {
     Game.addPlayer(gameCode, userId, socket);
     // game.players.forEach(socket => socket.emit('newPlayer', username))
   });
+
 };

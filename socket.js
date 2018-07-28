@@ -4,10 +4,6 @@ const gameController = require('./controllers/game-controller');
 module.exports = (server) => {
   const io = IO(server);
 
-  io.of('/admin')
-    .on('connection', gameController.onAdminConnection);
-
-  io.of('/game')
-    .on('connection', gameController.onPlayerConnection);
+  io.on('connection', gameController.onConnection);
 
 };
