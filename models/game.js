@@ -54,6 +54,7 @@ class Game {
   constructor (gameId, adminCode) {
     this.gameId = gameId;
     this.adminCode = adminCode;
+    this.round = 'waiting';
   }
 
   log () {
