@@ -17,7 +17,7 @@ module.exports = (server) => {
 
   io.on('connection', (socket) => {
     // eslint-disable-next-line
-    console.log(chalk.bgBlue('User connected', socket.id));
+    console.log(chalk.bgGreen('User connected', socket.id));
 
     socket.on('disconnect', () => {
       //if admin disconnect --> game.resetgamerunning
@@ -29,7 +29,7 @@ module.exports = (server) => {
       Game.setAdmin(gameId, adminCode, socket);
       socket.join(gameId);
       // eslint-disable-next-line
-      console.log(chalk.blue(Game.get(gameId).log()));
+      console.log(chalk.green(Game.get(gameId).log()));
     });
 
     socket.on('joinGame', (gameCode, userId) => {
@@ -52,6 +52,19 @@ module.exports = (server) => {
         io.to(player.socket.id).emit('player', playerInfo);
       });
     });
+
+    socket.on('startRound', (gameId, type) => {
+      // eslint-disable-next-line
+      if (type === 'day') console.log(chalk.bgYellow('Day round: ', gameId));
+      // eslint-disable-next-line
+      if (type === 'night') console.log(chalk.bgBlue('Night round: ', gameId));
+      Game.startRound(gameId, type);
+      io.in(gameId).emit('updateRound', type);
+    });
+
+
+
+
 
   });
 

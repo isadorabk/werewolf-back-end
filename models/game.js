@@ -51,6 +51,11 @@ class Game {
     return playersRole;
   }
 
+  static startRound (gameId, type) {
+    const game = Game.get(gameId);
+    game.round = type;
+  }
+
   constructor (gameId, adminCode) {
     this.gameId = gameId;
     this.adminCode = adminCode;
