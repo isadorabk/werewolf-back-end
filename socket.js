@@ -33,6 +33,7 @@ module.exports = (server) => {
 
     socket.on('join', (gameCode, userId) => {
       Game.addPlayer(gameCode, userId, socket);
+      socket.join(gameCode);
     });
 
     socket.on('startGame', (gameId) => {
@@ -53,3 +54,9 @@ module.exports = (server) => {
   });
 
 };
+
+// //get allsockets in a room
+// var clients_in_the_room = io.sockets.adapter.rooms[gameCode].sockets;
+// for (var clientId in clients_in_the_room) { //the first is the admin
+//   console.log('client: %s', clientId); //Seeing is believing 
+// }
