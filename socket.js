@@ -20,6 +20,7 @@ module.exports = (server) => {
     console.log(chalk.bgBlue('User connected', socket.id));
 
     socket.on('disconnect', () => {
+      //if admin disconnect --> game.resetgamerunning
       // eslint-disable-next-line
       console.log(chalk.bgRed('User disconnected', socket.id));
     });
@@ -31,7 +32,7 @@ module.exports = (server) => {
       console.log(chalk.blue(Game.get(gameId).log()));
     });
 
-    socket.on('join', (gameCode, userId) => {
+    socket.on('joinGame', (gameCode, userId) => {
       Game.addPlayer(gameCode, userId, socket);
       socket.join(gameCode);
     });
@@ -47,7 +48,8 @@ module.exports = (server) => {
         }
       }
       playersArr.forEach(player => {
-        io.to(player.socket.id).emit('role', player.role);
+        let { socket, ...playerInfo } = player;
+        io.to(player.socket.id).emit('player', playerInfo);
       });
     });
 

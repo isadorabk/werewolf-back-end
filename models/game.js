@@ -1,7 +1,7 @@
 const randomstring = require('randomstring');
 const Player = require('../models/player');
-
 const games = {};
+const card = require('../models/card');
 
 class Game {
   static get (gameId) {
@@ -30,6 +30,7 @@ class Game {
     if (!game) throw new Error('Game does not exist.');
     const player = Player.get(userId);
     player.socket = socket;
+    player.card = card;
     if (!game.players) game.players = {};
     game.players[userId] = player;
   }
