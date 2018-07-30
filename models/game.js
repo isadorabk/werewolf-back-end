@@ -1,14 +1,13 @@
 const randomstring = require('randomstring');
 const Player = require('../models/player');
 const games = {};
-const card = require('../models/card');
 
 class Game {
   static get (gameId) {
     return games[gameId];
   }
 
-  static create () {
+  static createGame () {
     const gameId = randomstring.generate({
       length: 4,
       charset: 'numeric'
@@ -30,36 +29,50 @@ class Game {
     if (!game) throw new Error('Game does not exist.');
     const player = Player.get(userId);
     player.socket = socket;
-    player.card = card;
     if (!game.players) game.players = {};
     game.players[userId] = player;
+    return game.players[userId];
   }
 
-  static getPlayers (gameId) {
+  static assignRoles (gameId) {
     const game = Game.get(gameId);
     if (!game) throw new Error('Game does not exist.');
-    const players = game.players;
     let playersArr = [];
-    for (let key in players) {
-      if (players.hasOwnProperty(key)) {
-        let { socket, ...player } = players[key];
-        player.socketId = players[key].socket.id;
+    for (let key in game.players) {
+      if (game.players.hasOwnProperty(key)) {
+        let { socket, ...player } = game.players[key];
+        player.socketId = game.players[key].socket.id;
         playersArr.push(player);
       }
     }
-    const playersRole = Game.assignWerewolves(playersArr, gameId);
-    return playersRole;
+    Game.assignWerewolves(playersArr, gameId);
   }
 
-  static startRound (gameId, type) {
+  static startRound (gameId, round) {
     const game = Game.get(gameId);
-    game.round = type;
+    game.round = round;
+  }
+
+  static killPlayer (gameId, playerId) {
+    const game = Game.get(gameId);
+    for (let key in game.players) {
+      if (game.players.hasOwnProperty(key)) {
+        if (game.players[key].playerId === playerId) {
+          game.players[key].lifeStatus = 'dead';
+          return {
+            playerId,
+            socketId: game.players[key].socket.id,
+            lifeStatus: game.players[key].lifeStatus
+          };
+        }
+      }
+    }
   }
 
   constructor (gameId, adminCode) {
     this.gameId = gameId;
     this.adminCode = adminCode;
-    this.round = 'waiting';
+    this.round = 'waiting game to start';
   }
 
   log () {

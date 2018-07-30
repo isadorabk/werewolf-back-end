@@ -1,6 +1,7 @@
 const Game = require('../models/game');
 const randomstring = require('randomstring');
 const players = {};
+const card = require('./card');
 
 class Player {
   static get (playerId) {
@@ -21,6 +22,7 @@ class Player {
     this.username = username;
     this.role = role;
     this.lifeStatus = lifeStatus;
+    this.card = card;
   }
 
 }

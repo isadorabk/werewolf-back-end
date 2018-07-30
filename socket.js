@@ -33,33 +33,45 @@ module.exports = (server) => {
     });
 
     socket.on('joinGame', (gameCode, userId) => {
-      Game.addPlayer(gameCode, userId, socket);
+      const player = Game.addPlayer(gameCode, userId, socket);
       socket.join(gameCode);
+      const { socket: _, ...playerData } = player;
+      socket.to(gameCode).emit('gameCommand', 'playerCreated', playerData);
     });
 
     socket.on('startGame', (gameId) => {
-      // eslint-disable-next-line
-      console.log(chalk.bgGreen('Game started: ', gameId));
+      Game.assignRoles(gameId);
       const game = Game.get(gameId);
-      let playersArr = [];
-      for (let key in game.players) {
-        if (game.players.hasOwnProperty(key)) {
-          playersArr.push(game.players[key]);
+      const players = game.players;
+      const playersArr = [];
+      for (let key in players) {
+        if (players.hasOwnProperty(key)) {
+          let { socket: _, ...playerInfo } = players[key];
+          io.to(players[key].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+          playersArr.push(playerInfo);
         }
       }
-      playersArr.forEach(player => {
-        let { socket, ...playerInfo } = player;
-        io.to(player.socket.id).emit('player', playerInfo);
-      });
+      io.to(game.admin.id).emit('gameCommand', 'playersList', playersArr);
+      // eslint-disable-next-line
+      console.log(chalk.bgGreen('Game started: ', gameId));
     });
 
-    socket.on('startRound', (gameId, type) => {
+    socket.on('startRound', (gameId, round) => {
       // eslint-disable-next-line
-      if (type === 'day') console.log(chalk.bgYellow('Day round: ', gameId));
+      if (round === 'day') console.log(chalk.bgYellow('Day round: ', gameId));
       // eslint-disable-next-line
-      if (type === 'night') console.log(chalk.bgBlue('Night round: ', gameId));
-      Game.startRound(gameId, type);
-      io.in(gameId).emit('updateRound', type);
+      if (round === 'night') console.log(chalk.bgBlue('Night round: ', gameId));
+      Game.startRound(gameId, round);
+      io.in(gameId).emit('gameCommand', 'updateRound', round);
+    });
+
+    socket.on('killPlayer', (gameId, playerId) => {
+      const playerKilled = Game.killPlayer(gameId, playerId);
+      const game = Game.get(gameId);
+      io.to(playerKilled.socketId).emit('gameCommand', 'updateLifeStatus', playerKilled.lifeStatus);
+      io.to(game.admin.id).emit('gameCommand', 'updateLifeStatus', {playerId, lifeStatus: playerKilled.lifeStatus});
+      // eslint-disable-next-line
+      console.log(chalk.bgMagenta('Kill player: ', playerId));
     });
 
 

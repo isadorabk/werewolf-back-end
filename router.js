@@ -3,7 +3,6 @@ const gameController = require('./controllers/game-controller');
 
 router
   .post('/new-game', gameController.createGame)
-  .post('/new-player', gameController.createPlayer)
-  .get('/game/:id', gameController.getPlayers);
+  .post('/new-player', gameController.createPlayer);
 
 module.exports = router;
