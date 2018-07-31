@@ -19,14 +19,16 @@ class Game {
 
   static setAdmin (gameId, adminCode, socket) {
     const game = Game.get(gameId);
-    if (!game) throw new Error('Game does not exist.');
+    // if (!game) throw new Error('Game does not exist.');
+    if (!game) return;
     if (game.adminCode !== adminCode) throw new Error('Invalid admin code.');
     game.admin = socket;
   }
 
   static addPlayer (gameCode, userId, socket) {
     const game = Game.get(gameCode);
-    if (!game) throw new Error('Game does not exist.');
+    // if (!game) throw new Error('Game does not exist.');
+    if (!game) return;
     const player = Player.get(userId);
     player.socket = socket;
     if (!game.players) game.players = {};
@@ -36,16 +38,17 @@ class Game {
 
   static assignRoles (gameId) {
     const game = Game.get(gameId);
-    if (!game) throw new Error('Game does not exist.');
+    // if (!game) throw new Error('Game does not exist.');
+    if (!game) return;
     let playersArr = [];
-    for (let key in game.players) {
-      if (game.players.hasOwnProperty(key)) {
-        let { socket, ...player } = game.players[key];
-        player.socketId = game.players[key].socket.id;
+    for (let id in game.players) {
+      if (game.players.hasOwnProperty(id)) {
+        let { socket, ...player } = game.players[id];
+        player.socketId = game.players[id].socket.id;
         playersArr.push(player);
       }
     }
-    if (playersArr.length < 5) throw new Error('Not enough players');
+    // if (playersArr.length < 5) throw new Error('Not enough players');
     Game.assignWerewolves(playersArr, gameId);
     Game.assignSpecialRoles(gameId);
   }
@@ -57,18 +60,45 @@ class Game {
 
   static killPlayer (gameId, playerId) {
     const game = Game.get(gameId);
-    for (let key in game.players) {
-      if (game.players.hasOwnProperty(key)) {
-        if (game.players[key].playerId === playerId) {
-          game.players[key].lifeStatus = 'dead';
-          return {
-            playerId,
-            socketId: game.players[key].socket.id,
-            lifeStatus: game.players[key].lifeStatus
-          };
+    for (let id in game.players) {
+      if (game.players.hasOwnProperty(id)) {
+        if (game.players[id].playerId === playerId) {
+          game.players[id].lifeStatus = 'dead';
+          return game.players[id];
         }
       }
     }
+  }
+
+  static checkGameFinished (gameId) {
+    const players = Game.get(gameId).players;
+    let villagersAlive = 0;
+    let werewolvesAlive = 0;
+    for (const id in players) {
+      if (players.hasOwnProperty(id)) {
+        if (players[id].lifeStatus === 'alive') {
+          if (players[id].role === 'werewolf') werewolvesAlive++;
+          else villagersAlive++;
+        }
+      }
+    }
+    if (werewolvesAlive === 0) {
+      for (const id in players) {
+        if (players.hasOwnProperty(id)) {
+          if (players[id].role !== 'werewolf' && players[id].lifeStatus === 'alive') players[id].winner = true;
+        }
+      }
+      return true;
+    }
+    if (werewolvesAlive === villagersAlive) {
+      for (const id in players) {
+        if (players.hasOwnProperty(id)) {
+          if (players[id].role === 'werewolf' && players[id].lifeStatus === 'alive') players[id].winner = true;
+        }
+      }
+      return true;
+    }
+    else return false;
   }
 
   constructor (gameId, adminCode) {
@@ -102,10 +132,10 @@ class Game {
     const game = Game.get(gameId);
     let villagersArr = [];
     let numOfPlayers = 0;
-    for (let key in game.players) {
-      if (game.players.hasOwnProperty(key)) {
+    for (let id in game.players) {
+      if (game.players.hasOwnProperty(id)) {
         numOfPlayers++;
-        if (game.players[key].role === 'villager') villagersArr.push(game.players[key]);
+        if (game.players[id].role === 'villager') villagersArr.push(game.players[id]);
       }
     }
     const seersDocsRatio = 10;

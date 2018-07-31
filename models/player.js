@@ -1,4 +1,3 @@
-const Game = require('../models/game');
 const randomstring = require('randomstring');
 const players = {};
 const card = require('./card');
@@ -23,6 +22,7 @@ class Player {
     this.role = role;
     this.lifeStatus = lifeStatus;
     this.card = card;
+    this.winner = false;
   }
 
 }
