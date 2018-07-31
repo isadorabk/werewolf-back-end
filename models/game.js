@@ -45,7 +45,9 @@ class Game {
         playersArr.push(player);
       }
     }
+    if (playersArr.length < 5) throw new Error('Not enough players');
     Game.assignWerewolves(playersArr, gameId);
+    Game.assignSpecialRoles(gameId);
   }
 
   static startRound (gameId, round) {
@@ -84,23 +86,49 @@ class Game {
     });
   }
 
-  static assignWerewolves (data, gameId) {
-    let playersRole = data.slice();
-    const numOfPlayers = playersRole.length;
-    const werewolvesRatio = 4;
+  static assignWerewolves (players, gameId) {
+    const numOfPlayers = players.length;
+    const werewolvesRatio = 5;
     const numOfWerewolves = Math.floor(numOfPlayers / werewolvesRatio);
-    const werewolves = Game.getRandomElements(playersRole, numOfWerewolves);
-    playersRole.forEach(player => {
-      werewolves.forEach(werewolf => {
-        if (werewolf.playerId === player.playerId) player.role = 'werewolf';
-      });
-    });
-    werewolves.forEach(element => {
-      const playerId = element.playerId;
+    const werewolves = Game.getRandomElements(players, numOfWerewolves);
+    werewolves.forEach(werewolf => {
+      const playerId = werewolf.playerId;
       const game = Game.get(gameId);
       game.players[playerId].role = 'werewolf';
     });
-    return playersRole;
+  }
+
+  static assignSpecialRoles (gameId) {
+    const game = Game.get(gameId);
+    let villagersArr = [];
+    let numOfPlayers = 0;
+    for (let key in game.players) {
+      if (game.players.hasOwnProperty(key)) {
+        numOfPlayers++;
+        if (game.players[key].role === 'villager') villagersArr.push(game.players[key]);
+      }
+    }
+    const seersDocsRatio = 10;
+    const numOfSeers = Math.ceil(numOfPlayers / seersDocsRatio);
+    const numOfDoctors = numOfSeers;
+    const seers = Game.getRandomElements(villagersArr, numOfSeers);
+    let newVillagersArr = [];
+    villagersArr.forEach(villager => {
+      seers.forEach(seer => {
+        if (seer.playerId === villager.playerId) villager.role = 'seer';
+      });
+      if (villager.role !== 'seer') newVillagersArr.push(villager);
+    });
+    const doctors = Game.getRandomElements(newVillagersArr, numOfDoctors);
+    seers.forEach(seer => {
+      const playerId = seer.playerId;
+      game.players[playerId].role = 'seer';
+    });
+    doctors.forEach(doctor => {
+      const playerId = doctor.playerId;
+      game.players[playerId].role = 'doctor';
+    });
+
   }
 
   static getRandomElements (arr, n) {

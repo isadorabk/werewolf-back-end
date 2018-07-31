@@ -10,12 +10,12 @@ const card = {
     description: 'Defend the village'
   },
   doctor: {
-    title: 'VILLAR & DOCTOR',
+    title: 'VILLAGER & DOCTOR',
     imgUrl: '../../assets/img/doctor.jpeg',
     description: 'Heal a innocent'
   },
   seer: {
-    title: 'VILLAR & SEER',
+    title: 'VILLAGER & SEER',
     imgUrl: '../../assets/img/seer.jpeg',
     description: 'Find the Werewolves'
   }
