@@ -12,9 +12,11 @@ class Game {
       length: 4,
       charset: 'numeric'
     });
-    const adminCode = randomstring.generate(12);
-    games[gameId] = new Game(gameId, adminCode);
-    return games[gameId];
+    if (!games[gameId]) {
+      const adminCode = randomstring.generate(12);
+      games[gameId] = new Game(gameId, adminCode);
+      return games[gameId];
+    } else return this.createGame();
   }
 
   static setAdmin (gameId, adminCode, socket) {
