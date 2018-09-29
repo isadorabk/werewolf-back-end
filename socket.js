@@ -30,7 +30,9 @@ module.exports = (server) => {
       if (players && players[userId]) {
         Game.updatePlayerSocket(gameCode, userId, socket);
         let { socket: _, ...playerInfo } = players[userId];
-        io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+        const started = game.started;
+        const info = { playerInfo, started };
+        io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
       } else {
         const player = Game.addPlayer(gameCode, userId, socket);
         let { socket: _, ...playerData } = player;
@@ -74,13 +76,16 @@ module.exports = (server) => {
       Game.assignRoles(gameId);
       const game = Game.get(gameId);
       const players = game.players;
+      Game.setStarted(gameId);
       let werewolves = [];
       let specialRoles = [];
       let villagers = [];
       for (let id in players) {
         if (players.hasOwnProperty(id)) {
           let { socket: _, ...playerInfo } = players[id];
-          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+          const started = game.started;
+          const info = { playerInfo, started };
+          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', info);
           if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
           if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
           if (playerInfo.role === 'villager') villagers.push(playerInfo);
@@ -92,7 +97,6 @@ module.exports = (server) => {
         villagers
       };
       io.to(game.admin.id).emit('gameCommand', 'playersList', allPlayers);
-      Game.setStarted(gameId);
       // eslint-disable-next-line
       console.log(chalk.bgGreen('Game started: ', gameId));
     });
