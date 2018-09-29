@@ -65,6 +65,11 @@ class Game {
     Game.assignSpecialRoles(gameId);
   }
 
+  static setStarted (gameId) {
+    const game = Game.get(gameId);
+    game.started = true;
+  }
+
   static startRound (gameId, round) {
     const game = Game.get(gameId);
     game.round = round;

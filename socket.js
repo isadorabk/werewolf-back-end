@@ -38,6 +38,38 @@ module.exports = (server) => {
       }
     });
 
+    socket.on('retrieveGame', (gameId) => {
+      let ended;
+      const game = Game.get(gameId);
+      const started = game.started;
+      if (started) {
+        ended = checkGameFinished(gameId);
+      }
+      const players = game.players;
+      let playersList = [];
+      let werewolves = [];
+      let specialRoles = [];
+      let villagers = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          let { socket: _, ...playerInfo } = players[id];
+          playersList.push(playerInfo);
+          if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
+          if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
+          if (playerInfo.role === 'villager') villagers.push(playerInfo);
+        }
+      }
+      const allPlayers = {
+        werewolves,
+        specialRoles,
+        villagers,
+        playersList,
+        started,
+        ended,
+      };
+      io.to(game.admin.id).emit('gameCommand','retrieveGame',allPlayers);
+    });
+
     socket.on('startGame', (gameId) => {
       Game.assignRoles(gameId);
       const game = Game.get(gameId);
@@ -60,6 +92,7 @@ module.exports = (server) => {
         villagers
       };
       io.to(game.admin.id).emit('gameCommand', 'playersList', allPlayers);
+      Game.setStarted(gameId);
       // eslint-disable-next-line
       console.log(chalk.bgGreen('Game started: ', gameId));
     });
