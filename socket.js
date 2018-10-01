@@ -31,7 +31,9 @@ module.exports = (server) => {
         Game.updatePlayerSocket(gameCode, userId, socket);
         let { socket: _, ...playerInfo } = players[userId];
         const started = game.started;
-        const info = { playerInfo, started };
+        let ended;
+        if (started) ended = Game.checkGameFinished(gameCode);
+        const info = { playerInfo, started, ended };
         io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
       } else {
         const player = Game.addPlayer(gameCode, userId, socket);
@@ -41,12 +43,10 @@ module.exports = (server) => {
     });
 
     socket.on('retrieveGame', (gameId) => {
-      let ended;
       const game = Game.get(gameId);
       const started = game.started;
-      if (started) {
-        ended = checkGameFinished(gameId);
-      }
+      let ended;
+      if (started) ended = Game.checkGameFinished(gameId);
       const players = game.players;
       let playersList = [];
       let werewolves = [];
