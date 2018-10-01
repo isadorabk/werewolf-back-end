@@ -110,19 +110,21 @@ module.exports = (server) => {
         // eslint-disable-next-line
         console.log(chalk.bgRed('Game finished: ', gameId));
       }
-
-      socket.on('startVote', gameId => {
-        const players = Game.get(gameId).players;
-        console.log(players);
-
-        socket.to(gameId).emit('gameCommand', 'startVote', players);
-      });
-
     });
 
-
-
-
+    socket.on('startVote', gameId => {
+      const players = Game.get(gameId).players;
+      const playersAlive = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          const { socket: _, ...playerInfo } = players[id];
+          if (playerInfo.lifeStatus === 'alive') {
+            allPlayers.push(playerInfo);
+          }
+        }
+      }
+      socket.to(gameId).emit('gameCommand', 'startVote', playersAlive);
+    });
 
   });
 
