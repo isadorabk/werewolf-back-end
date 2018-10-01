@@ -111,6 +111,13 @@ module.exports = (server) => {
         console.log(chalk.bgRed('Game finished: ', gameId));
       }
 
+      socket.on('startVote', gameId => {
+        const players = Game.get(gameId).players;
+        console.log(players);
+
+        socket.to(gameId).emit('gameCommand', 'startVote', players);
+      });
+
     });
 
 
@@ -124,5 +131,5 @@ module.exports = (server) => {
 // //get allsockets in a room
 // var clients_in_the_room = io.sockets.adapter.rooms[gameCode].sockets;
 // for (var clientId in clients_in_the_room) { //the first is the admin
-//   console.log('client: %s', clientId); //Seeing is believing 
+//   console.log('client: %s', clientId); //Seeing is believing
 // }
