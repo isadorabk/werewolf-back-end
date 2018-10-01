@@ -34,6 +34,7 @@ module.exports = (server) => {
         const ended = Game.checkGameFinished(gameCode);
         const info = { playerInfo, started, ended };
         io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
+        io.to(players[userId].socket.id).emit('gameCommand', 'updateRound', game.round);
       } else {
         const player = Game.addPlayer(gameCode, userId, socket);
         let { socket: _, ...playerData } = player;
@@ -69,6 +70,7 @@ module.exports = (server) => {
         ended,
       };
       io.to(game.admin.id).emit('gameCommand','retrieveGame',allPlayers);
+      io.to(game.admin.id).emit('gameCommand', 'updateRound', game.round);
     });
 
     socket.on('startGame', (gameId) => {
