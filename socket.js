@@ -119,7 +119,7 @@ module.exports = (server) => {
         if (players.hasOwnProperty(id)) {
           const { socket: _, ...playerInfo } = players[id];
           if (playerInfo.lifeStatus === 'alive') {
-            allPlayers.push(playerInfo);
+            playersAlive.push(playerInfo);
           }
         }
       }
