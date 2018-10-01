@@ -31,8 +31,7 @@ module.exports = (server) => {
         Game.updatePlayerSocket(gameCode, userId, socket);
         let { socket: _, ...playerInfo } = players[userId];
         const started = game.started;
-        let ended;
-        if (started) ended = Game.checkGameFinished(gameCode);
+        const ended = Game.checkGameFinished(gameCode);
         const info = { playerInfo, started, ended };
         io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
       } else {
