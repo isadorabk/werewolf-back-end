@@ -126,6 +126,13 @@ module.exports = (server) => {
       socket.to(gameId).emit('gameCommand', 'startVote', playersAlive);
     });
 
+    socket.on('voteToKill', (gameId, playerId) => {
+      const players = Game.get(gameId).players;
+      players[playerId].votes ++;
+      const { socket: _, ...playerInfo } = players[playerId];
+      socket.to(gameId).emit('gameCommand', 'updateVotes', playerInfo);
+    });
+
   });
 
 };
