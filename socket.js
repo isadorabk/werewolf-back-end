@@ -126,11 +126,39 @@ module.exports = (server) => {
       socket.to(gameId).emit('gameCommand', 'startVote', playersAlive);
     });
 
-    socket.on('voteToKill', (gameId, playerId) => {
+    socket.on('finishVote', gameId => {
+      socket.to(gameId).emit('gameCommand', 'finishVote', false);
       const players = Game.get(gameId).players;
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          players[id].votes = 0;
+        }
+      }
+    });
+
+    socket.on('voteToKill', (gameId, playerId) => {
+      const game = Game.get(gameId);
+      const players = game.players;
       players[playerId].votes ++;
-      const { socket: _, ...playerInfo } = players[playerId];
-      socket.to(gameId).emit('gameCommand', 'updateVotes', playerInfo);
+      const werewolves = [];
+      const specialRoles = [];
+      const villagers = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          let { socket: _, ...playerInfo } = players[id];
+          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+          if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
+          if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
+          if (playerInfo.role === 'villager') villagers.push(playerInfo);
+        }
+      }
+      const allPlayers = {
+        werewolves,
+        specialRoles,
+        villagers
+      };
+
+      io.to(game.admin.id).emit('gameCommand', 'updateVotes', allPlayers);
     });
 
   });
