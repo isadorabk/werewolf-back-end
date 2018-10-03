@@ -146,9 +146,56 @@ module.exports = (server) => {
         // eslint-disable-next-line
         console.log(chalk.bgRed('Game finished: ', gameId));
       }
-
     });
 
+    socket.on('startVote', gameId => {
+      const players = Game.get(gameId).players;
+      const playersAlive = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          const { socket: _, ...playerInfo } = players[id];
+          if (playerInfo.lifeStatus === 'alive') {
+            playersAlive.push(playerInfo);
+          }
+        }
+      }
+      socket.to(gameId).emit('gameCommand', 'startVote', playersAlive);
+    });
+
+    socket.on('finishVote', gameId => {
+      socket.to(gameId).emit('gameCommand', 'finishVote', false);
+      const players = Game.get(gameId).players;
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          players[id].votes = 0;
+        }
+      }
+    });
+
+    socket.on('voteToKill', (gameId, playerId) => {
+      const game = Game.get(gameId);
+      const players = game.players;
+      players[playerId].votes ++;
+      const werewolves = [];
+      const specialRoles = [];
+      const villagers = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          let { socket: _, ...playerInfo } = players[id];
+          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+          if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
+          if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
+          if (playerInfo.role === 'villager') villagers.push(playerInfo);
+        }
+      }
+      const allPlayers = {
+        werewolves,
+        specialRoles,
+        villagers
+      };
+
+      io.to(game.admin.id).emit('gameCommand', 'updateVotes', allPlayers);
+    });
   });
 
 };
@@ -156,5 +203,5 @@ module.exports = (server) => {
 // //get allsockets in a room
 // var clients_in_the_room = io.sockets.adapter.rooms[gameCode].sockets;
 // for (var clientId in clients_in_the_room) { //the first is the admin
-//   console.log('client: %s', clientId); //Seeing is believing 
+//   console.log('client: %s', clientId); //Seeing is believing
 // }
