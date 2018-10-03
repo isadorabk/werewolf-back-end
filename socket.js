@@ -30,8 +30,9 @@ module.exports = (server) => {
       if (players && players[userId]) {
         Game.updatePlayerSocket(gameCode, userId, socket);
         let { socket: _, ...playerInfo } = players[userId];
+        let ended;
         const started = game.started;
-        const ended = Game.checkGameFinished(gameCode);
+        if (started) ended = Game.checkGameFinished(gameCode);
         const info = { playerInfo, started, ended };
         io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
         io.to(players[userId].socket.id).emit('gameCommand', 'updateRound', game.round);
@@ -182,7 +183,6 @@ module.exports = (server) => {
       for (let id in players) {
         if (players.hasOwnProperty(id)) {
           let { socket: _, ...playerInfo } = players[id];
-          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
           if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
           if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
           if (playerInfo.role === 'villager') villagers.push(playerInfo);
