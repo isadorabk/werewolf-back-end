@@ -5,6 +5,7 @@ const Game = require('./models/game');
 module.exports = (server) => {
   io = IO(server);
   io.set('origins', '*:*');
+  io.set('match origin protocol', true);
   io.on('connection', (socket) => {
     // eslint-disable-next-line
     console.log(chalk.bgGreen('User connected', socket.id));
