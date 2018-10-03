@@ -1,24 +1,14 @@
 const IO = require('socket.io');
 const chalk = require('chalk');
 const Game = require('./models/game');
-// const gameController = require('./controllers/game-controller');
 
-// let io;
-
-// module.exports.createSocket = (server) => {
-//   io = IO(server);
-
-//   io.on('connection', gameController.onConnection);
-// };
-
-// module.exports.io = io;
 module.exports = (server) => {
   io = IO(server);
 
   io.on('connection', (socket) => {
     // eslint-disable-next-line
     console.log(chalk.bgGreen('User connected', socket.id));
-
+    
     socket.on('disconnect', () => {
       //if admin disconnect --> game.resetgamerunning
       // eslint-disable-next-line
@@ -34,23 +24,69 @@ module.exports = (server) => {
 
     socket.on('joinGame', (gameCode, userId) => {
       if (!gameCode) return;
-      const player = Game.addPlayer(gameCode, userId, socket);
+      const game = Game.get(gameCode);
+      const players = game.players;
       socket.join(gameCode);
-      let { socket: _, ...playerData } = player;
-      socket.to(gameCode).emit('gameCommand', 'playerCreated', playerData);
+      if (players && players[userId]) {
+        Game.updatePlayerSocket(gameCode, userId, socket);
+        let { socket: _, ...playerInfo } = players[userId];
+        const started = game.started;
+        const ended = Game.checkGameFinished(gameCode);
+        const info = { playerInfo, started, ended };
+        io.to(players[userId].socket.id).emit('gameCommand', 'playerInfo', info);
+        io.to(players[userId].socket.id).emit('gameCommand', 'updateRound', game.round);
+      } else {
+        const player = Game.addPlayer(gameCode, userId, socket);
+        let { socket: _, ...playerData } = player;
+        socket.to(gameCode).emit('gameCommand', 'playerCreated', playerData);
+      }
     });
 
-    socket.on('startGame', (gameId) => {
-      Game.assignRoles(gameId);
+    socket.on('retrieveGame', (gameId) => {
       const game = Game.get(gameId);
+      const started = game.started;
+      let ended;
+      if (started) ended = Game.checkGameFinished(gameId);
       const players = game.players;
+      let playersList = [];
       let werewolves = [];
       let specialRoles = [];
       let villagers = [];
       for (let id in players) {
         if (players.hasOwnProperty(id)) {
           let { socket: _, ...playerInfo } = players[id];
-          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', playerInfo);
+          playersList.push(playerInfo);
+          if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
+          if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
+          if (playerInfo.role === 'villager') villagers.push(playerInfo);
+        }
+      }
+      const allPlayers = {
+        werewolves,
+        specialRoles,
+        villagers,
+        playersList,
+        started,
+        ended,
+      };
+      io.to(game.admin.id).emit('gameCommand','retrieveGame',allPlayers);
+      io.to(game.admin.id).emit('gameCommand', 'updateRound', game.round);
+    });
+
+    socket.on('startGame', (gameId) => {
+      Game.assignRoles(gameId);
+      const game = Game.get(gameId);
+      const players = game.players;
+      Game.setStarted(gameId);
+      let werewolves = [];
+      let specialRoles = [];
+      let villagers = [];
+      for (let id in players) {
+        if (players.hasOwnProperty(id)) {
+          let { socket: _, ...playerInfo } = players[id];
+          const started = game.started;
+          const info = { playerInfo, started };
+          io.to(players[id].socket.id).emit('gameCommand', 'playerInfo', info);
           if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
           if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
           if (playerInfo.role === 'villager') villagers.push(playerInfo);
@@ -89,7 +125,7 @@ module.exports = (server) => {
       const gameFinished = Game.checkGameFinished(gameId);
       if (gameFinished) {
         const players = Game.get(gameId).players;
-        let playersAlive = [];
+        // let playersAlive = [];
         let werewolves = [];
         let specialRoles = [];
         let villagers = [];
@@ -99,10 +135,10 @@ module.exports = (server) => {
             if (playerInfo.role === 'werewolf') werewolves.push(playerInfo);
             if (playerInfo.role !== 'werewolf' && playerInfo.role !== 'villager') specialRoles.push(playerInfo);
             if (playerInfo.role === 'villager') villagers.push(playerInfo);
-            if (players[id].lifeStatus === 'alive') {
-              playersAlive.push(playerInfo);
-              io.to(players[id].socket.id).emit('gameCommand', 'gameEnd', playerInfo);
-            }
+            // if (players[id].lifeStatus === 'alive') {
+            // playersAlive.push(playerInfo);
+            io.to(players[id].socket.id).emit('gameCommand', 'gameEnd', playerInfo);
+            // }
           }
         }
         const allPlayers = { werewolves, specialRoles, villagers };
@@ -160,7 +196,6 @@ module.exports = (server) => {
 
       io.to(game.admin.id).emit('gameCommand', 'updateVotes', allPlayers);
     });
-
   });
 
 };

@@ -13,6 +13,7 @@ app
   .use(cors())
   .use(bodyParser.urlencoded({ extended: false }))
   .use(bodyParser.json())
+  .use(express.static(__dirname + '/../werewolf-front-end/werewolf-frontend/dist/werewolf-frontend'))
   .use(router);
   
 server.listen(port, () => {
