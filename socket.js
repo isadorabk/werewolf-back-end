@@ -186,13 +186,8 @@ module.exports = (server) => {
     });
 
     socket.on('voteToKill', (gameId, playerId, voterId) => {
-      console.log(socket.id);
-      console.log(voterId);
-      console.log(Game.get(gameId).players);
-      console.log(Game.get(gameId).players[voterId]);
       const voter = Game.get(gameId).players[voterId];
       if (voter.lifeStatus === 'alive') {
-        console.log('alive player');
         const game = Game.get(gameId);
         const players = game.players;
         players[playerId].votes ++;
@@ -215,7 +210,6 @@ module.exports = (server) => {
 
         io.to(game.admin.id).emit('gameCommand', 'updateVotes', allPlayers);
       }
-      else console.log('dead player');
     });
   });
 
