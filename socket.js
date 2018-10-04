@@ -24,6 +24,7 @@ module.exports = (server) => {
     socket.on('joinGame', (gameCode, userId) => {
       if (!gameCode) return;
       const game = Game.get(gameCode);
+      if (!game) return;
       const players = game.players;
       socket.join(gameCode);
       if (players && players[userId]) {
