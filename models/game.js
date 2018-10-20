@@ -12,9 +12,11 @@ class Game {
       length: 4,
       charset: 'numeric'
     });
-    const adminCode = randomstring.generate(12);
-    games[gameId] = new Game(gameId, adminCode);
-    return games[gameId];
+    if (!games[gameId]) {
+      const adminCode = randomstring.generate(12);
+      games[gameId] = new Game(gameId, adminCode);
+      return games[gameId];
+    } else return this.createGame();
   }
 
   static setAdmin (gameId, adminCode, socket) {
@@ -36,6 +38,16 @@ class Game {
     return game.players[userId];
   }
 
+  static updatePlayerSocket (gameCode, userId, socket) {
+    const game = Game.get(gameCode);
+    if (!game) return;
+    const player = Player.get(userId);
+    if (!player) return;
+    player.socket = socket;
+    if (!game.players) game.players = {};
+    game.players[userId] = player;
+  }
+
   static assignRoles (gameId) {
     const game = Game.get(gameId);
     // if (!game) throw new Error('Game does not exist.');
@@ -51,6 +63,11 @@ class Game {
     // if (playersArr.length < 5) throw new Error('Not enough players');
     Game.assignWerewolves(playersArr, gameId);
     Game.assignSpecialRoles(gameId);
+  }
+
+  static setStarted (gameId) {
+    const game = Game.get(gameId);
+    game.started = true;
   }
 
   static startRound (gameId, round) {
