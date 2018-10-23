@@ -8,9 +8,6 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
 
 
 
-
-## Screenshots
-
 ![](https://user-images.githubusercontent.com/35597953/44788060-47568a80-ab99-11e8-9c53-3be04ef2341e.png)
 
 
