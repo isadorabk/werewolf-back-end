@@ -4,7 +4,7 @@
 
 Werewolf Game is a real-time multiplayer game for 6 or more players based on the well-known social party game [Werewolf](https://en.wikipedia.org/wiki/Mafia_(party_game)), commonly also called Mafia.
 
-For the front-end repo, please visit: [Werewolf - front-end](https://github.com/isadorabk/werewolf-front-end)
+For the front-end repo, please visit: [Werewolf - front-end](https://github.com/chinins/werewolf-front-end)
 
 
 
@@ -21,7 +21,6 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
 ### Prerequisites
 
 - [Node](https://nodejs.org/en/)
-- [mongoDB](https://www.mongodb.com/)
 - [npm](https://www.npmjs.com/)
 
 
@@ -31,7 +30,7 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
 1. #### Clone the repo.
 
    ```
-   $ git clone https://github.com/isadorabk/werewolf-back-end.git  
+   $ git clone https://github.com/chinins/werewolf-back-end.git  
    $ cd werewolf-back-end
    ```
 
@@ -63,7 +62,7 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
 
 3. ### Set up the front end
 
-   Go to [Werewolf - front-end](https://github.com/isadorabk/werewolf-front-end) and follow the instructions in the README.md file.
+   Go to [Werewolf - front-end](https://github.com/chinins/werewolf-front-end) and follow the instructions in the README.md file.
 
 
 ## Tech Stack
@@ -71,7 +70,6 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
 Back-end built with:
 
 - [Express](https://koajs.com/)
-- [mongoDB](https://www.mongodb.com/)
 - [Socket.io](https://socket.io/)
 
 
@@ -79,7 +77,8 @@ Back-end built with:
 ## Author
 
 - Isadora Bassetto Kwiatkowski - [GitHub](https://github.com/isadorabk) - [LinkedIn](https://www.linkedin.com/in/isadora-bassetto-kwiatkowski/)
-
+- Olga Chinina - [Github](https://github.com/chinins) - [Linkedin](www.linkedin.com/in/olga-chinina)
+- Adria Palleja - [Github]()https://github.com/adriapalleja
 
 
 
