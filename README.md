@@ -37,15 +37,6 @@ For the front-end repo, please visit: [Werewolf - front-end](https://github.com/
    $ npm install
    ```
 
-3. #### Connect mongoDB database
-
-   In the terminal, run:
-
-   ```
-   $ mongod
-   ```
-
-
 
 ## Usage
 
