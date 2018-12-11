@@ -23,6 +23,8 @@ class Player {
     this.lifeStatus = lifeStatus;
     this.card = card;
     this.winner = false;
+    this.toVote = 'vote';
+    this.votes = 0;
   }
 
 }
